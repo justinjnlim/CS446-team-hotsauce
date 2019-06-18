@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.widget.TextView;
+//import android.support.v7.widget.GridLayoutManager;
+
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -18,6 +21,23 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private static int RESULT_LOAD_IMG = 1;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter recyclerAdapter;
+    private RecyclerView.LayoutManager recyclerLayoutManager;
+
+    private final String image_titles[] = {
+            "meme1",
+            "meme2",
+            "meme3",
+            "meme4"
+    };
+
+    private final Integer image_ids[] = {
+            R.drawable.meme1,
+            R.drawable.meme2,
+            R.drawable.meme3,
+            R.drawable.meme4,
+    };
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -51,6 +71,14 @@ public class MainActivity extends AppCompatActivity {
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // Initialize RecyclerView for gallery
+//        recyclerView = (RecyclerView) findViewById(R.id.Gallery);
+//        recyclerView.setHasFixedSize(true);
+//        recyclerLayoutManager = new GridLayoutManager(this, 3);
+//        recyclerView.setLayoutManager(recyclerLayoutManager);
+//        recyclerAdapter = new GalleryAdapter(this.image_ids);
+//        recyclerView.setAdapter(recyclerAdapter);
     }
 
     @Override
