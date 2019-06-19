@@ -8,11 +8,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
-//import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.widget.TextView;
-//import android.support.v7.widget.GridLayoutManager;
-
+import android.support.v7.widget.GridLayoutManager;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.meme3,
             R.drawable.meme4,
     };
-
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -73,12 +73,38 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // Initialize RecyclerView for gallery
-//        recyclerView = (RecyclerView) findViewById(R.id.Gallery);
-//        recyclerView.setHasFixedSize(true);
-//        recyclerLayoutManager = new GridLayoutManager(this, 3);
-//        recyclerView.setLayoutManager(recyclerLayoutManager);
-//        recyclerAdapter = new GalleryAdapter(this.image_ids);
-//        recyclerView.setAdapter(recyclerAdapter);
+        recyclerView = (RecyclerView) findViewById(R.id.Gallery);
+        recyclerView.setHasFixedSize(true);
+        recyclerLayoutManager = new GridLayoutManager(this, 3);
+        recyclerView.setLayoutManager(recyclerLayoutManager);
+        recyclerAdapter = new GalleryAdapter(getGalleryData());
+        recyclerView.setAdapter(recyclerAdapter);
+    }
+
+    protected Integer[] getGalleryData() {
+        /*
+        Returns data to then feed into Gallery.
+         */
+
+        // Retrieve all images in drawables folder
+        Field[] fields = R.drawable.class.getFields();
+
+        // Filter for images that start with prefix "meme"
+        ArrayList<Integer> ids = new ArrayList<>();
+        for(int i = 0; i < fields.length; i++) {
+            try {
+                String name = fields[i].getName();
+                if (!name.startsWith("meme")) {
+                    continue;
+                }
+                ids.add(fields[i].getInt(null));
+            } catch (Exception e) {
+            }
+        }
+
+        // Return images
+        Utils utils = new Utils();
+        return utils.integerArrayListToIntegerList(ids);
     }
 
     @Override
