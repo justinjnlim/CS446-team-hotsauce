@@ -6,6 +6,9 @@ import android.widget.ImageView;
 
 
 public class GalleryViewHolder extends RecyclerView.ViewHolder{
+    /*
+    View for each cell in the Gallery
+     */
 
     public ImageView image;
 

@@ -77,14 +77,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(recyclerLayoutManager);
-        recyclerAdapter = new GalleryAdapter(getGalleryData());
+        recyclerAdapter = new GalleryAdapter(getGalleryData(), this);
         recyclerView.setAdapter(recyclerAdapter);
     }
 
     protected Integer[] getGalleryData() {
-        /*
-        Returns data to then feed into Gallery.
-         */
+        // Returns data to then feed into Gallery.
 
         // Retrieve all images in drawables folder
         Field[] fields = R.drawable.class.getFields();
