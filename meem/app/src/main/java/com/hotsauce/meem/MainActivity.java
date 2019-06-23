@@ -19,13 +19,11 @@ import android.widget.TextView;
 import android.support.v7.widget.GridLayoutManager;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Arrays;
-
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
@@ -110,23 +108,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            try {
                 final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                //image_view.setImageBitmap(selectedImage);
                 Intent intent = new Intent(getApplicationContext(), EditImageActivity.class);
                 intent.putExtra("imageUri", imageUri.toString());
                 startActivity(intent);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                //Toast.makeText(PostImage.this, "Something went wrong", Toast.LENGTH_LONG).show();
-            }
-
-        }else {
-            //Toast.makeText(PostImage.this, "You haven't picked Image",Toast.LENGTH_LONG).show();
         }
     }
-
 }

@@ -38,10 +38,8 @@ public class GalleryAdapter extends RecyclerView.Adapter {
         Bitmap memeBitmap = BitmapFactory.decodeFile(this.data[position]);
         vH.image.setImageBitmap(memeBitmap);
 
-        //vH.image.setImageResource(this.data[position]);
 
         // create touch event
-        //final int current_image_id = this.data[position];
         final String current_image_path = this.data[position];
         vH.image.setOnClickListener(new View.OnClickListener() {
             @Override
