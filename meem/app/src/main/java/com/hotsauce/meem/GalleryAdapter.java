@@ -17,7 +17,7 @@ public class GalleryAdapter extends RecyclerView.Adapter {
     Bridge between our model and view.
      */
 
-    private String[] data;
+    public String[] data;
     private Context context;
 
     public GalleryAdapter(String[] data, Context context) {

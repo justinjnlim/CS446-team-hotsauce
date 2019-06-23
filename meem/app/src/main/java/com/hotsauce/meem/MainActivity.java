@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,12 +27,13 @@ import java.io.InputStream;
 import java.util.Arrays;
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private static int RESULT_LOAD_IMG = 1;
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter recyclerAdapter;
+    private GalleryAdapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -73,6 +75,18 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(recyclerLayoutManager);
         recyclerAdapter = new GalleryAdapter(getMemeFilepaths(), this);
         recyclerView.setAdapter(recyclerAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        dataSetChanged();
+    }
+
+    @UiThread
+    protected void dataSetChanged() {
+        recyclerAdapter.data = getMemeFilepaths();
+        recyclerAdapter.notifyDataSetChanged();
     }
 
     public boolean requestPermission(String permission) {
