@@ -1,5 +1,6 @@
 package com.hotsauce.meem;
 
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -17,9 +18,9 @@ public class GalleryActionActivity extends AppCompatActivity {
 
         // Render meme the user clicked on
         Bundle bundle = getIntent().getExtras();
-        int image_id = bundle.getInt("image_id");
+        String memePath = bundle.getString("image_path");
         ImageView imageView = (ImageView)findViewById(R.id.GalleryActionImage);
-        imageView.setImageResource(image_id);
+        imageView.setImageBitmap(BitmapFactory.decodeFile(memePath));
     }
 
 }
