@@ -1,22 +1,30 @@
 package com.hotsauce.meem;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.support.v7.widget.GridLayoutManager;
-import java.lang.reflect.Field;
+
+import java.io.File;
 import java.util.ArrayList;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
+import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,20 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
-
-    private final String image_titles[] = {
-            "meme1",
-            "meme2",
-            "meme3",
-            "meme4"
-    };
-
-    private final Integer image_ids[] = {
-            R.drawable.meme1,
-            R.drawable.meme2,
-            R.drawable.meme3,
-            R.drawable.meme4,
-    };
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -77,32 +71,36 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(recyclerLayoutManager);
-        recyclerAdapter = new GalleryAdapter(getGalleryData(), this);
+        recyclerAdapter = new GalleryAdapter(getMemeFilepaths(), this);
         recyclerView.setAdapter(recyclerAdapter);
     }
 
-    protected Integer[] getGalleryData() {
-        // Returns data to then feed into Gallery.
-
-        // Retrieve all images in drawables folder
-        Field[] fields = R.drawable.class.getFields();
-
-        // Filter for images that start with prefix "meme"
-        ArrayList<Integer> ids = new ArrayList<>();
-        for(int i = 0; i < fields.length; i++) {
-            try {
-                String name = fields[i].getName();
-                if (!name.startsWith("meme")) {
-                    continue;
-                }
-                ids.add(fields[i].getInt(null));
-            } catch (Exception e) {
-            }
+    public boolean requestPermission(String permission) {
+        // TODO remove this and somehow re-use the implementation in BaseActivity
+        boolean isGranted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+        if (!isGranted) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{permission},
+                    READ_WRITE_STORAGE);
         }
+        return isGranted;
+    }
 
-        // Return images
-        Utils utils = new Utils();
-        return utils.integerArrayListToIntegerList(ids);
+    protected String[] getMemeFilepaths() {
+        if (requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            File directory = new File(Environment.getExternalStorageDirectory() + File.separator);
+            File[] files = directory.listFiles();
+            ArrayList<String> memes = new ArrayList<String>();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].getName().endsWith(".png")) {
+                    memes.add(files[i].getAbsolutePath());
+                }
+            }
+            return Arrays.copyOf(memes.toArray(), memes.size(), String[].class);
+        } else {
+            return new String[0];
+        }
     }
 
     @Override
@@ -110,23 +108,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            try {
                 final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                //image_view.setImageBitmap(selectedImage);
                 Intent intent = new Intent(getApplicationContext(), EditImageActivity.class);
                 intent.putExtra("imageUri", imageUri.toString());
                 startActivity(intent);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                //Toast.makeText(PostImage.this, "Something went wrong", Toast.LENGTH_LONG).show();
-            }
-
-        }else {
-            //Toast.makeText(PostImage.this, "You haven't picked Image",Toast.LENGTH_LONG).show();
         }
     }
-
 }

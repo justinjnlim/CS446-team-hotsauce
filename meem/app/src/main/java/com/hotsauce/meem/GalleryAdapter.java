@@ -1,5 +1,7 @@
 package com.hotsauce.meem;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -15,10 +17,10 @@ public class GalleryAdapter extends RecyclerView.Adapter {
     Bridge between our model and view.
      */
 
-    private Integer[] data;
+    private String[] data;
     private Context context;
 
-    public GalleryAdapter(Integer[] data, Context context) {
+    public GalleryAdapter(String[] data, Context context) {
         this.data = data;
         this.context = context;
     }
@@ -33,16 +35,18 @@ public class GalleryAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         GalleryViewHolder vH = (GalleryViewHolder)viewHolder;
         vH.image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        vH.image.setImageResource(this.data[position]);
+        Bitmap memeBitmap = BitmapFactory.decodeFile(this.data[position]);
+        vH.image.setImageBitmap(memeBitmap);
+
 
         // create touch event
-        final int current_image_id = this.data[position];
+        final String current_image_path = this.data[position];
         vH.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, GalleryActionActivity.class);
-                intent.putExtra("image_id", current_image_id);
-                Log.d("myTag", Integer.toString(current_image_id));
+                intent.putExtra("image_path", current_image_path);
+                Log.d("memePath", current_image_path);
                 context.startActivity(intent);
             }
         });
