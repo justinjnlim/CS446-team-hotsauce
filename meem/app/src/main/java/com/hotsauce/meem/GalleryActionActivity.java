@@ -19,7 +19,7 @@ public class GalleryActionActivity extends AppCompatActivity {
         // Render meme the user clicked on
         Bundle bundle = getIntent().getExtras();
         String memePath = bundle.getString("image_path");
-        ImageView imageView = (ImageView)findViewById(R.id.GalleryActionImage);
+        ImageView imageView = findViewById(R.id.GalleryActionImage);
         imageView.setImageBitmap(BitmapFactory.decodeFile(memePath));
     }
 

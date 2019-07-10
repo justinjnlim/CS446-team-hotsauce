@@ -19,6 +19,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.support.v7.widget.GridLayoutManager;
 
+import com.hotsauce.meem.state.GreetingContext;
+
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -31,6 +35,7 @@ import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
+    private TextView greetingMessage;
     private static int RESULT_LOAD_IMG = 1;
     private RecyclerView recyclerView;
     private GalleryAdapter recyclerAdapter;
@@ -64,17 +69,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        mTextMessage = findViewById(R.id.message);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        setGreetingMessage();
+
         // Initialize RecyclerView for gallery
-        recyclerView = (RecyclerView) findViewById(R.id.Gallery);
+        recyclerView = findViewById(R.id.Gallery);
         recyclerView.setHasFixedSize(true);
         recyclerLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(recyclerLayoutManager);
         recyclerAdapter = new GalleryAdapter(getMemeFilepaths(), this);
         recyclerView.setAdapter(recyclerAdapter);
+    }
+
+    public void setGreetingMessage() {
+        GreetingContext greetingContext = new GreetingContext();
+        greetingMessage = findViewById(R.id.greeting);
+        String[] filePaths = getMemeFilepaths();
+        greetingMessage.setText(greetingContext.getGreetingsString(filePaths.length));
     }
 
     @Override
@@ -87,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
     protected void dataSetChanged() {
         recyclerAdapter.data = getMemeFilepaths();
         recyclerAdapter.notifyDataSetChanged();
+        setGreetingMessage();
     }
 
     public boolean requestPermission(String permission) {
