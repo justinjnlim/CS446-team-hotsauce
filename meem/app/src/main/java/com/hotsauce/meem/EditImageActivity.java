@@ -10,19 +10,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.transition.ChangeBounds;
 import androidx.transition.TransitionManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.hotsauce.meem.PhotoEditor.BaseActivity;
 import com.hotsauce.meem.PhotoEditor.EditingToolsAdapter;
 import com.hotsauce.meem.PhotoEditor.EmojiBSFragment;
@@ -31,6 +35,10 @@ import com.hotsauce.meem.PhotoEditor.FilterViewAdapter;
 import com.hotsauce.meem.PhotoEditor.PropertiesBSFragment;
 import com.hotsauce.meem.PhotoEditor.StickerBSFragment;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
+import com.hotsauce.meem.db.Meme;
+import com.hotsauce.meem.db.MemeRepository;
+import com.hotsauce.meem.db.MemeRoomDatabase;
+
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
@@ -66,6 +74,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
+    // Should this only exist in MainActivity?
+    private MemeViewModel memeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +84,12 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         makeFullScreen();
         setContentView(R.layout.activity_edit_image);
 
-        try
-        {
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+
+        try {
             this.getSupportActionBar().hide();
+        } catch (NullPointerException e) {
         }
-        catch (NullPointerException e){}
 
         initViews();
 
@@ -115,6 +126,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
         mPhotoEditorView.getSource().setImageURI(imageUri);
         // mPhotoEditorView.getSource().setImageResource(R.drawable.color_palette);
+
     }
 
     private void initViews() {
@@ -222,11 +234,17 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
     @SuppressLint("MissingPermission")
     private void saveImage() {
+
+
         if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             showLoading("Saving...");
+
+            // get unique ID
+            final String memeId = Long.toString(System.currentTimeMillis());
             File file = new File(Environment.getExternalStorageDirectory()
-                    + File.separator + ""
-                    + System.currentTimeMillis() + ".png");
+                    + File.separator + memeId + ".png");
+
+
             try {
                 file.createNewFile();
 
@@ -238,8 +256,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 mPhotoEditor.saveAsFile(file.getAbsolutePath(), saveSettings, new PhotoEditor.OnSaveListener() {
                     @Override
                     public void onSuccess(@NonNull String imagePath) {
+
+                        memeViewModel.insert(new Meme(memeId));
                         hideLoading();
                         showSnackbar("Image Saved Successfully");
+                        // WHEN YOU CHANGE THIS, MAKE SURE TO SEND IT BACK TO GALLERY (somehow)
                         mPhotoEditorView.getSource().setImageURI(Uri.fromFile(new File(imagePath)));
                     }
 

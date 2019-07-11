@@ -7,22 +7,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.MenuItem;
 import android.widget.TextView;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.hotsauce.meem.db.Meme;
+import com.hotsauce.meem.db.MemeRepository;
 import com.hotsauce.meem.state.GreetingContext;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 
@@ -31,9 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private TextView greetingMessage;
     private static int RESULT_LOAD_IMG = 1;
-    private RecyclerView recyclerView;
-    private GalleryAdapter recyclerAdapter;
-    private RecyclerView.LayoutManager recyclerLayoutManager;
+
+    private MemeViewModel memeViewModel;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -63,28 +70,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        RecyclerView recyclerView = findViewById(R.id.Gallery);
+        final MemeViewAdapter adapter = new MemeViewAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setHasFixedSize(true);
+
+        // Get a new or existing ViewModel
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+
+        memeViewModel.getAllMemes().observe(this, new Observer<List<Meme>>() {
+            @Override
+            public void onChanged(@Nullable final List<Meme> memes) {
+                adapter.setMemes(memes);
+            }
+        });
+
         mTextMessage = findViewById(R.id.message);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        setGreetingMessage();
+
+        //setGreetingMessage();
 
         // Initialize RecyclerView for gallery
-        recyclerView = findViewById(R.id.Gallery);
-        recyclerView.setHasFixedSize(true);
-        recyclerLayoutManager = new GridLayoutManager(this, 3);
-        recyclerView.setLayoutManager(recyclerLayoutManager);
-        recyclerAdapter = new GalleryAdapter(getMemeFilepaths(), this);
-        recyclerView.setAdapter(recyclerAdapter);
+
+        /*
+        recyclerAdapter = new GalleryAdapter(getMemes(), this);
+        */
     }
 
+    /*
     public void setGreetingMessage() {
         GreetingContext greetingContext = new GreetingContext();
         greetingMessage = findViewById(R.id.greeting);
-        String[] filePaths = getMemeFilepaths();
-        greetingMessage.setText(greetingContext.getGreetingsString(filePaths.length));
+        List<Meme> memes = memeViewModel.getAllMemes().getValue();
+        greetingMessage.setText(greetingContext.getGreetingsString(memes.size()));
     }
+    */
 
+    /*
     @Override
     protected void onResume() {
         super.onResume();
@@ -93,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
 
     @UiThread
     protected void dataSetChanged() {
-        recyclerAdapter.data = getMemeFilepaths();
+        //recyclerAdapter.setMemes(getMemes());
         recyclerAdapter.notifyDataSetChanged();
-        setGreetingMessage();
+        //setGreetingMessage();
     }
+    */
 
     public boolean requestPermission(String permission) {
-        // TODO remove this and somehow re-use the implementation in BaseActivity
         boolean isGranted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
         if (!isGranted) {
             ActivityCompat.requestPermissions(
@@ -110,8 +135,16 @@ public class MainActivity extends AppCompatActivity {
         return isGranted;
     }
 
-    protected String[] getMemeFilepaths() {
+    /*
+    protected List<Meme> getMemes() {
         if (requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            List<Meme> val = memeRepository.getAllMemes().getValue();
+            if (val == null) {
+                return Collections.emptyList();
+            }
+            return val;
+
             File directory = new File(Environment.getExternalStorageDirectory() + File.separator);
             File[] files = directory.listFiles();
             ArrayList<String> memes = new ArrayList<String>();
@@ -120,11 +153,14 @@ public class MainActivity extends AppCompatActivity {
                     memes.add(files[i].getAbsolutePath());
                 }
             }
-            return Arrays.copyOf(memes.toArray(), memes.size(), String[].class);
+            return ;
+
         } else {
-            return new String[0];
+            return Collections.emptyList();
         }
-    }
+
+
+    }*/
 
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
