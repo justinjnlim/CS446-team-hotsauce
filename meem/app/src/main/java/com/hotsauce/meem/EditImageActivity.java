@@ -36,8 +36,6 @@ import com.hotsauce.meem.PhotoEditor.PropertiesBSFragment;
 import com.hotsauce.meem.PhotoEditor.StickerBSFragment;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
 import com.hotsauce.meem.db.Meme;
-import com.hotsauce.meem.db.MemeRepository;
-import com.hotsauce.meem.db.MemeRoomDatabase;
 
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
@@ -75,7 +73,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private boolean mIsFilterVisible;
 
     // Should this only exist in MainActivity?
-    private MemeViewModel memeViewModel;
+    private GalleryViewModel memeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +82,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         makeFullScreen();
         setContentView(R.layout.activity_edit_image);
 
-        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+        memeViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
         try {
             this.getSupportActionBar().hide();

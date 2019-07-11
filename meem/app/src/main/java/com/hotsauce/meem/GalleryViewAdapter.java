@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeViewHolder> {
+public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.MemeViewHolder> {
 
     class MemeViewHolder extends RecyclerView.ViewHolder {
         private final ImageView memeItemView;
@@ -34,7 +34,7 @@ public class MemeViewAdapter extends RecyclerView.Adapter<MemeViewAdapter.MemeVi
     private List<Meme> memes = Collections.emptyList();
     private Context context;
 
-    MemeViewAdapter(Context context) {
+    GalleryViewAdapter(Context context) {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
     }
