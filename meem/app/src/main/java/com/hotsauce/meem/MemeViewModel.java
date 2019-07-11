@@ -10,13 +10,13 @@ import com.hotsauce.meem.db.MemeRepository;
 
 import java.util.List;
 
-public class GalleryViewModel extends AndroidViewModel {
+public class MemeViewModel extends AndroidViewModel {
 
     private MemeRepository memeRepository;
 
     private LiveData<List<Meme>> allMemes;
 
-    public GalleryViewModel(Application application) {
+    public MemeViewModel(Application application) {
         super(application);
         memeRepository = new MemeRepository(application);
         allMemes = memeRepository.getAllMemes();
@@ -28,5 +28,9 @@ public class GalleryViewModel extends AndroidViewModel {
 
     void insert(Meme meme) {
         memeRepository.insert(meme);
+    }
+
+    void delete(Meme meme) {
+        memeRepository.delete(meme);
     }
 }

@@ -25,8 +25,11 @@ public class MemeRepository {
         new insertAsyncTask(mMemeDao).execute(meme);
     }
 
-    private static class insertAsyncTask extends AsyncTask<Meme, Void, Void> {
+    public void delete(Meme meme) {
+        new deleteMemeAsyncTask(mMemeDao).execute(meme);
+    }
 
+    private static class insertAsyncTask extends AsyncTask<Meme, Void, Void> {
         private MemeDao mAsyncTaskDao;
 
         insertAsyncTask(MemeDao dao) {
@@ -39,4 +42,19 @@ public class MemeRepository {
             return null;
         }
     }
+
+    private static class deleteMemeAsyncTask extends AsyncTask<Meme, Void, Void> {
+        private MemeDao mAsyncTaskDao;
+
+        deleteMemeAsyncTask(MemeDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Meme... params) {
+            mAsyncTaskDao.delete(params[0]);
+            return null;
+        }
+    }
+
 }

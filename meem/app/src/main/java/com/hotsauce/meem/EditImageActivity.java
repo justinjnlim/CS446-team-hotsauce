@@ -73,7 +73,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private boolean mIsFilterVisible;
 
     // Should this only exist in MainActivity?
-    private GalleryViewModel memeViewModel;
+    private MemeViewModel memeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         makeFullScreen();
         setContentView(R.layout.activity_edit_image);
 
-        memeViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
 
         try {
             this.getSupportActionBar().hide();
