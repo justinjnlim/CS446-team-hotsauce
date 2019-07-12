@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.hotsauce.meem.db.Meme;
 import com.hotsauce.meem.state.GreetingContext;
 
+import java.io.File;
 import java.util.List;
 
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
@@ -83,6 +84,13 @@ public class MainActivity extends AppCompatActivity {
             memeViewModel.getAllMemes().observe(this, new Observer<List<Meme>>() {
                 @Override
                 public void onChanged(@Nullable final List<Meme> memes) {
+                    for (Meme meme : memes) {
+                        File f = new File(meme.getFilepath());
+                        if (!f.exists()) {
+                            memeViewModel.delete(meme);
+                            return;
+                        }
+                    }
                     adapter.setMemes(memes);
                     greetingView.setText(greetingContext.getGreetingsString(memes.size()));
                 }

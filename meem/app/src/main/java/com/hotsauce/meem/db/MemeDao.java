@@ -22,4 +22,13 @@ public interface MemeDao {
 
     @Query("SELECT * from meme_table ORDER BY id ASC")
     LiveData<List<Meme>> getAllMemes();
+
+    @Insert
+    void insert(MemeTemplate memeTemplate);
+
+    @Delete
+    void delete(MemeTemplate memeTemplate);
+
+    @Query("SELECT * from template_table ORDER BY id ASC")
+    LiveData<List<MemeTemplate>> getAllMemeTemplates();
 }
