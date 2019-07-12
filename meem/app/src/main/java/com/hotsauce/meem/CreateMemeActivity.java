@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
 import ja.burhanrashid52.photoeditor.TextStyleBuilder;
 
-public class CreateTemplateActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+public class CreateMemeActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,7 +23,7 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_create_template);
+        setContentView(R.layout.activity_create_meme);
 
         Intent intent = getIntent();
         Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));

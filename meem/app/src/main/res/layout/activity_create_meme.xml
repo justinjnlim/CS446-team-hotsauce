@@ -21,15 +21,15 @@
         android:background="#4A000000"
         android:src="@drawable/ic_save" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/actionText"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="#4A000000"-->
-<!--        android:text="Add Text Region"-->
-<!--        android:textColor="@color/white"-->
-<!--        android:layout_centerHorizontal="true"/>-->
+    <TextView
+        android:id="@+id/actionText"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_height="40dp"
+        android:background="#4A000000"
+        android:text="Add Text Region"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"/>
 
     <ImageButton
         android:id="@+id/addTextButton"
