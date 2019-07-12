@@ -47,18 +47,20 @@ public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.
 
     @Override
     public void onBindViewHolder(MemeViewHolder holder, int position) {
+
+        final Meme meme = this.memes.get(position);
         holder.memeItemView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap memeBitmap = BitmapFactory.decodeFile(getFilepath(this.memes.get(position)));
+        Bitmap memeBitmap = BitmapFactory.decodeFile(meme.getFilepath());
         holder.memeItemView.setImageBitmap(memeBitmap);
 
         // create touch event
-        final String current_image_path = getFilepath(this.memes.get(position));
+        final String meme_id = meme.getId();
         holder.memeItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, GalleryActionActivity.class);
-                intent.putExtra("image_path", current_image_path);
-                Log.d("memePath", current_image_path);
+                intent.putExtra("meme", meme);
+                Log.d("current_meme", meme_id);
                 context.startActivity(intent);
             }
         });
@@ -75,8 +77,5 @@ public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.
         return this.memes.size();
     }
 
-    public static String getFilepath(Meme meme) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + meme.getId() + ".png";
-    }
 
 }

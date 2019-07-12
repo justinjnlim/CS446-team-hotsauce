@@ -23,12 +23,7 @@
             android:text="Share"/>
 
         <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|center"
-            android:text="Download"/>
-
-        <Button
+            android:id="@+id/delete_meme_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center"

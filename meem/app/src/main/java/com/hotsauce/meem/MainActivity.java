@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     GreetingContext greetingContext;
 
-    private GalleryViewModel memeViewModel;
+    private MemeViewModel memeViewModel;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             final TextView greetingView = findViewById(R.id.greeting);
 
             // Get a new or existing ViewModel
-            memeViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+            memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
             memeViewModel.getAllMemes().observe(this, new Observer<List<Meme>>() {
                 @Override
                 public void onChanged(@Nullable final List<Meme> memes) {

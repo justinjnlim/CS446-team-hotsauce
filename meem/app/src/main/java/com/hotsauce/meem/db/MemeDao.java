@@ -2,6 +2,7 @@ package com.hotsauce.meem.db;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -15,6 +16,9 @@ public interface MemeDao {
 
     @Query("DELETE FROM meme_table")
     void deleteAll();
+
+    @Delete
+    void delete(Meme meme);
 
     @Query("SELECT * from meme_table ORDER BY id ASC")
     LiveData<List<Meme>> getAllMemes();
