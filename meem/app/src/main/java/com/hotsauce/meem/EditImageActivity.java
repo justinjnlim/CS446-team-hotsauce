@@ -239,7 +239,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
             // get unique ID
             final String memeId = Long.toString(System.currentTimeMillis());
-            File file = new File(Environment.getExternalStorageDirectory()
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                     + File.separator + memeId + ".png");
 
 
@@ -258,8 +258,9 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         memeViewModel.insert(new Meme(memeId));
                         hideLoading();
                         showSnackbar("Image Saved Successfully");
+                        finish();
                         // WHEN YOU CHANGE THIS, MAKE SURE TO SEND IT BACK TO GALLERY (somehow)
-                        mPhotoEditorView.getSource().setImageURI(Uri.fromFile(new File(imagePath)));
+                        //mPhotoEditorView.getSource().setImageURI(Uri.fromFile(new File(imagePath)));
                     }
 
                     @Override

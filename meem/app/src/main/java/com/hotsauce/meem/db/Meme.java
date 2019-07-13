@@ -23,6 +23,6 @@ public class Meme implements Serializable {
     public String getId(){ return this.id;}
 
     public String getFilepath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + id + ".png";
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + id + ".png";
     }
 }
