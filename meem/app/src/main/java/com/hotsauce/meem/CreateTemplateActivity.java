@@ -42,8 +42,6 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
 
     public boolean onTouch (View v, MotionEvent ev) {
         final int action = ev.getAction();
-        final int evX = (int) ev.getX();
-        final int evY = (int) ev.getY();
         switch (action) {
             case MotionEvent.ACTION_DOWN :
                 // TODO

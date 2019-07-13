@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             final Uri imageUri = data.getData();
-            Intent intent = new Intent(getApplicationContext(), EditImageActivity.class);
+            Intent intent = new Intent(getApplicationContext(), CreateMemeActivity.class);
             //Intent intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
             intent.putExtra("imageUri", imageUri.toString());
             startActivity(intent);

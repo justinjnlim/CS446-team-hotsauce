@@ -27,19 +27,11 @@
         android:layout_marginTop="8dp"
         android:layout_height="40dp"
         android:background="#4A000000"
-        android:text="Add Text Region"
+        android:padding="8dp"
+        android:text="Tap on a text region to add text"
+        android:gravity="center_vertical"
         android:textColor="@color/white"
         android:layout_centerHorizontal="true"/>
-
-    <ImageButton
-        android:id="@+id/addTextButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="56dp"
-        android:background="#4A000000"
-        android:src="@drawable/ic_text" />
 
     <ImageButton
         android:id="@+id/closeButton"

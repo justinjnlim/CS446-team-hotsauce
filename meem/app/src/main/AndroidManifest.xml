@@ -28,6 +28,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".CreateMemeActivity"
+            android:label="CreateMemeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATEMEMEACTIVITY" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".EditImageActivity"
             android:label="EditImageActivity">
             <intent-filter>
