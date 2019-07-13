@@ -1,8 +1,13 @@
 package com.hotsauce.meem;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -15,9 +20,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
+import com.hotsauce.meem.db.Meme;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class CreateMemeActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+
+    private RelativeLayout imageLayout;
+    private ImageView image;
+    private MemeViewModel memeViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,15 +45,19 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
 
         Intent intent = getIntent();
         Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
-        ImageView image = findViewById(R.id.image);
+        image = (ImageView)findViewById(R.id.image);
         image.setImageURI(imageUri);
         image.setOnTouchListener(this);
+
+        imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
 
         // Set button listeners
         ImageButton closeButton = (ImageButton)findViewById(R.id.closeButton);
         closeButton.setOnClickListener(this);
         ImageButton saveButton = (ImageButton)findViewById(R.id.saveButton);
         saveButton.setOnClickListener(this);
+
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
     }
 
     public boolean onTouch (View v, MotionEvent ev) {
@@ -83,12 +102,40 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
         tv.setTextColor(colorCode);
         tv.setLayoutParams(lp);
         tv.setText(inputText);
-        RelativeLayout mainLayout = (RelativeLayout)findViewById(R.id.relativeLayout);
-        mainLayout.addView(tv);
+        imageLayout.addView(tv);
 
         final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
         Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
         lpt.setMargins(x1, y1, 0, 0);
+    }
+
+    public void saveImage(Bitmap bitmap){
+        final String memeId = Long.toString(System.currentTimeMillis());
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                + File.separator + memeId + ".png");
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            memeViewModel.insert(new Meme(memeId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Bitmap loadBitmapFromView(View v, int width, int height) {
+        Bitmap b = Bitmap.createBitmap(width , height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        v.layout(0, 0, width, height);
+        Drawable bgDrawable = v.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(c);
+        else
+            c.drawColor(Color.TRANSPARENT);
+        v.draw(c);
+        return b;
     }
 
     @Override
@@ -98,18 +145,14 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
                 onBackPressed();
                 break;
             case R.id.saveButton:
-                // TODO
-                break;
-            case R.id.addTextButton:
-                // TODO
-                TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
-                textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
-                    @Override
-                    public void onDone(String inputText, int colorCode) {
-                        // TODO
-                        Log .i("CreateTemplateActivityLog", "inputText:" + inputText);
-                    }
-                });
+                //Bitmap bitmap = loadBitmapFromView(imageLayout, imageLayout.getWidth(), imageLayout.getHeight());
+                imageLayout.setDrawingCacheEnabled(true);
+                imageLayout.buildDrawingCache(true);
+                //Bitmap bitmap = Bitmap.createBitmap(imageLayout.getDrawingCache());
+                Bitmap bitmap = loadBitmapFromView(imageLayout, image.getWidth(), image.getHeight());
+                saveImage(bitmap);
+
+                onBackPressed();
                 break;
         }
     }
