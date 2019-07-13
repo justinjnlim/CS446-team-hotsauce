@@ -53,6 +53,7 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
                 // TODO
                 Log .i("CreateTemplateActivityLog", "x:" + ev.getX());
                 Log .i("CreateTemplateActivityLog", "y:" + ev.getY());
+                /*
                 if ( "coordinate in text region" ) {
                     TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
                     textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
@@ -63,6 +64,7 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
                         }
                     });
                 }
+                */
                 break;
         }
         return true;

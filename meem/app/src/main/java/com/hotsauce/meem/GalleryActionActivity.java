@@ -12,6 +12,8 @@ import android.widget.ImageView;
 
 import com.hotsauce.meem.db.Meme;
 
+import java.io.File;
+
 
 public class GalleryActionActivity extends AppCompatActivity {
     /*
@@ -37,7 +39,9 @@ public class GalleryActionActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                memeViewModel.delete(currentMeme);
+                if (new File(currentMeme.getFilepath()).delete()) {
+                    memeViewModel.delete(currentMeme);
+                }
                 finish();
             }
         });
