@@ -1,10 +1,14 @@
 package com.hotsauce.meem;
 
+import android.graphics.Paint.Style;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,19 +23,30 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
 import com.hotsauce.meem.db.Meme;
+import com.hotsauce.meem.db.MemeTemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CreateMemeActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+public class CreateMemeActivity extends AppCompatActivity implements
+        View.OnTouchListener,
+        View.OnClickListener {
 
     private RelativeLayout imageLayout;
+    private RelativeLayout mainLayout;
     private ImageView image;
     private MemeViewModel memeViewModel;
+    private MemeTemplate memeTemplate;
+    private List<Rect> rectangles;
+    private List<TextView> textboxes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +64,7 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
         image.setImageURI(imageUri);
         image.setOnTouchListener(this);
 
+        mainLayout = (RelativeLayout)findViewById(R.id.mainLayout);
         imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
 
         // Set button listeners
@@ -57,7 +73,22 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
         ImageButton saveButton = (ImageButton)findViewById(R.id.saveButton);
         saveButton.setOnClickListener(this);
 
+        textboxes = new ArrayList<TextView>();
+
         memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+        memeViewModel.getAllTemplates().observe(this, new Observer<List<MemeTemplate>>() {
+            @Override
+            public void onChanged(@Nullable final List<MemeTemplate> memeTemplates) {
+                // TODO: get memeTemplate from ID passed from Intent
+                // memeTemplate = memeTemplates.get(3);
+                // rectangles = memeTemplate.getRectangles();
+                rectangles = new ArrayList<Rect>();
+                rectangles.add(new Rect(200, 300, 800, 500));
+                rectangles.add(new Rect(500, 1500, 1200, 1700));
+
+                createTextBoxesFromRectangles(rectangles);
+            }
+        });
     }
 
     public boolean onTouch (View v, MotionEvent ev) {
@@ -70,20 +101,24 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
             case MotionEvent.ACTION_UP :
                 // TODO
                 Log .i("CreateTemplateActivityLog", " " + ev.getX() + "," + ev.getY());
-                final int x1 = 125;
-                final int x2 = 1200;
-                final int y1 = 200;
-                final int y2 = 691;
-                if (x1 <= ev.getX() && x2 >= ev.getX() && y1 <= ev.getY() && y2 >= ev.getY()) {
-                    TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
-                    textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
-                        @Override
-                        public void onDone(String inputText, int colorCode) {
-                            // TODO
-                            createTextBox(inputText, colorCode, x1, x2, y1, y2);
-                            Log .i("CreateTemplateActivityLog", "inputText:" + inputText);
-                        }
-                    });
+                int i = 0;
+                for (Rect rect: rectangles) {
+                    final int j = i;
+                    final int x1 = rect.left;
+                    final int x2 = rect.right;
+                    final int y1 = rect.top;
+                    final int y2 = rect.bottom;
+                    if (x1 <= ev.getX() && x2 >= ev.getX() && y1 <= ev.getY() && y2 >= ev.getY()) {
+                        TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
+                        textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
+                            @Override
+                            public void onDone(String inputText, int colorCode) {
+                                editTextBox(textboxes.get(j), inputText, colorCode);
+                            }
+                        });
+                        break;
+                    }
+                    i++;
                 }
 
                 break;
@@ -91,7 +126,13 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
         return true;
     }
 
-    public void createTextBox(String inputText, int colorCode, int x1, int x2, int y1, int y2) {
+    public void createTextBoxesFromRectangles(List<Rect> rectangles) {
+        for (Rect rect: rectangles) {
+            textboxes.add(createTextBox("", 0, rect.left, rect.right, rect.top, rect.bottom));
+        }
+    }
+
+    public TextView createTextBox(String inputText, int colorCode, int x1, int x2, int y1, int y2) {
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
                 Math.abs(x1-x2),
                 Math.abs(y1-y2));
@@ -102,14 +143,29 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
         tv.setTextColor(colorCode);
         tv.setLayoutParams(lp);
         tv.setText(inputText);
+
+        // add TextView border
+        ShapeDrawable sd = new ShapeDrawable();
+        sd.setShape(new RectShape());
+        sd.getPaint().setColor(Color.RED);
+        sd.getPaint().setStrokeWidth(10f);
+        sd.getPaint().setStyle(Style.STROKE);
+        tv.setBackground(sd);
+
         imageLayout.addView(tv);
 
         final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
         Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
         lpt.setMargins(x1, y1, 0, 0);
+        return tv;
     }
 
-    public void saveImage(Bitmap bitmap){
+    public void editTextBox(TextView tv, String inputText, int colorCode) {
+        tv.setTextColor(colorCode);
+        tv.setText(inputText);
+    }
+
+    public void saveMeme(Bitmap bitmap){
         final String memeId = Long.toString(System.currentTimeMillis());
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                 + File.separator + memeId + ".png");
@@ -145,12 +201,17 @@ public class CreateMemeActivity extends AppCompatActivity implements View.OnTouc
                 onBackPressed();
                 break;
             case R.id.saveButton:
+                // clear textview borders before saving meme
+                for (TextView tv: textboxes) {
+                    tv.setBackground(null);
+                }
+
                 //Bitmap bitmap = loadBitmapFromView(imageLayout, imageLayout.getWidth(), imageLayout.getHeight());
                 imageLayout.setDrawingCacheEnabled(true);
                 imageLayout.buildDrawingCache(true);
                 //Bitmap bitmap = Bitmap.createBitmap(imageLayout.getDrawingCache());
                 Bitmap bitmap = loadBitmapFromView(imageLayout, image.getWidth(), image.getHeight());
-                saveImage(bitmap);
+                saveMeme(bitmap);
 
                 onBackPressed();
                 break;
