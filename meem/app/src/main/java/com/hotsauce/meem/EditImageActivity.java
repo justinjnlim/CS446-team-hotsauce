@@ -72,7 +72,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
-    // Should this only exist in MainActivity?
     private MemeViewModel memeViewModel;
 
     @Override
@@ -108,13 +107,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mRvFilters.setLayoutManager(llmFilters);
         mRvFilters.setAdapter(mFilterViewAdapter);
 
-        //Typeface mTextRobotoTf = ResourcesCompat.getFont(this, R.font.roboto_medium);
-        //Typeface mEmojiTypeFace = Typeface.createFromAsset(getAssets(), "emojione-android.ttf");
-
         mPhotoEditor = new PhotoEditor.Builder(this, mPhotoEditorView)
                 .setPinchTextScalable(true) // set flag to make text scalable when pinch
-                //.setDefaultTextTypeface(mTextRobotoTf)
-                //.setDefaultEmojiTypeface(mEmojiTypeFace)
                 .build(); // build photo editor sdk
 
         mPhotoEditor.setOnPhotoEditorListener(this);
@@ -123,7 +117,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         Intent intent = getIntent();
         Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
         mPhotoEditorView.getSource().setImageURI(imageUri);
-        // mPhotoEditorView.getSource().setImageResource(R.drawable.color_palette);
 
     }
 
