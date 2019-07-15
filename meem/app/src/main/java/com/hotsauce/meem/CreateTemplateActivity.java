@@ -1,20 +1,49 @@
 package com.hotsauce.meem;
 
+import android.graphics.Paint.Style;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import androidx.annotation.NonNull;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+import com.hotsauce.meem.PhotoEditor.MultiTouchListener;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
-import ja.burhanrashid52.photoeditor.TextStyleBuilder;
+import com.hotsauce.meem.db.MemeTemplate;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateTemplateActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+
+    List<Rect> rectangles;
+    Uri imageUri;
+    private MemeViewModel memeViewModel;
+    private RelativeLayout imageLayout;
+    private ImageView image;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,10 +55,13 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         setContentView(R.layout.activity_create_template);
 
         Intent intent = getIntent();
-        Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
-        ImageView image = findViewById(R.id.image);
+        imageUri = Uri.parse(intent.getStringExtra("imageUri"));
+        image = findViewById(R.id.image);
         image.setImageURI(imageUri);
         image.setOnTouchListener(this);
+
+        imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
+        image = (ImageView)findViewById(R.id.image);
 
         // Set button listeners
         ImageButton closeButton = (ImageButton)findViewById(R.id.closeButton);
@@ -38,6 +70,85 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         saveButton.setOnClickListener(this);
         ImageButton addTextButton = (ImageButton)findViewById(R.id.addTextButton);
         addTextButton.setOnClickListener(this);
+
+        rectangles = new ArrayList<Rect>();
+        rectangles.add(new Rect(300, 300, 600, 600));
+        rectangles.add(new Rect(500, 1000, 800, 1300));
+
+        createTextBox(300, 600, 300, 600);
+
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+    }
+
+    public void createTextBox(int x1, int x2, int y1, int y2) {
+        TextView tv = new TextView(this);
+        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+                Math.abs(x1-x2),
+                Math.abs(y1-y2));
+
+        // size textView to fit width and height
+        tv.setAutoSizeTextTypeUniformWithConfiguration(1, 100, 1, TypedValue.COMPLEX_UNIT_DIP);
+        tv.setLayoutParams(lp);
+        tv.setText("");
+
+        // add TextView border
+        ShapeDrawable sd = new ShapeDrawable();
+        sd.setShape(new RectShape());
+        sd.getPaint().setColor(Color.RED);
+        sd.getPaint().setStrokeWidth(10f);
+        sd.getPaint().setStyle(Style.STROKE);
+        tv.setBackground(sd);
+
+        MultiTouchListener multiTouchListener = getMultiTouchListener();
+
+        imageLayout.addView(tv);
+
+        final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
+        Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
+        lpt.setMargins(x1, y1, 0, 0);
+        tv.setOnTouchListener(multiTouchListener);
+    }
+
+    @NonNull
+    private MultiTouchListener getMultiTouchListener() {
+        MultiTouchListener multiTouchListener = new MultiTouchListener(null, image, true);
+
+        return multiTouchListener;
+    }
+
+    public void saveTemplate() {
+        String memeTemplateId = Long.toString(System.currentTimeMillis());
+        saveTemplateImageFile(memeTemplateId);
+        memeViewModel.insertTemplate(new MemeTemplate(memeTemplateId, rectangles));
+    }
+
+    void saveTemplateImageFile(String memeTemplateId)
+    {
+        String sourceFilename = imageUri.getPath();
+        String destinationFilename = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                + File.separator + memeTemplateId + ".png";
+
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+
+        try {
+            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
+            bos = new BufferedOutputStream(new FileOutputStream(destinationFilename, false));
+            byte[] buf = new byte[1024];
+            bis.read(buf);
+            do {
+                bos.write(buf);
+            } while(bis.read(buf) != -1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bis != null) bis.close();
+                if (bos != null) bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean onTouch (View v, MotionEvent ev) {
@@ -51,18 +162,6 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
                 // TODO
                 Log .i("CreateTemplateActivityLog", "x:" + ev.getX());
                 Log .i("CreateTemplateActivityLog", "y:" + ev.getY());
-                /*
-                if ( "coordinate in text region" ) {
-                    TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
-                    textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
-                        @Override
-                        public void onDone(String inputText, int colorCode) {
-                            // TODO
-                            Log .i("CreateTemplateActivityLog", "inputText:" + inputText);
-                        }
-                    });
-                }
-                */
                 break;
         }
         return true;
@@ -75,7 +174,8 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
                 onBackPressed();
                 break;
             case R.id.saveButton:
-                // TODO
+                saveTemplate();
+                onBackPressed();
                 break;
             case R.id.addTextButton:
                 // TODO
