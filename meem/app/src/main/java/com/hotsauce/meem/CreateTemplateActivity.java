@@ -43,22 +43,22 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
     private MemeViewModel memeViewModel;
     private RelativeLayout imageLayout;
     private ImageView image;
+    int RESULT_LOAD_IMG = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Remove title bar
+
+        // Calls image selector
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+
+        // Strip title and notification bars
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_create_template);
-
-        Intent intent = getIntent();
-        imageUri = Uri.parse(intent.getStringExtra("imageUri"));
-        image = findViewById(R.id.image);
-        image.setImageURI(imageUri);
-        image.setOnTouchListener(this);
 
         imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
         image = (ImageView)findViewById(R.id.image);
@@ -92,7 +92,7 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         tv.setText("");
 
         tv.setBackgroundColor(Color.parseColor("#55FF0000"));
-        MultiTouchListener multiTouchListener = getMultiTouchListener();
+        MultiTouchListener multiTouchListener = new MultiTouchListener(null, image, true);
 
         imageLayout.addView(tv);
 
@@ -100,13 +100,6 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
         lpt.setMargins(x1, y1, 0, 0);
         tv.setOnTouchListener(multiTouchListener);
-    }
-
-    @NonNull
-    private MultiTouchListener getMultiTouchListener() {
-        MultiTouchListener multiTouchListener = new MultiTouchListener(null, image, true);
-
-        return multiTouchListener;
     }
 
     public void saveTemplate() {
@@ -188,5 +181,18 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
     public void onBackPressed() {
         // show save dialogue if user is in editing mode
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            final Uri imageUri = data.getData();
+
+            image = findViewById(R.id.image);
+            image.setImageURI(imageUri);
+            image.setOnTouchListener(this);
+        }
     }
 }

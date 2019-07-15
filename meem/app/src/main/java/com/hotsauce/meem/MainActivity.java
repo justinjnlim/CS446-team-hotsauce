@@ -44,16 +44,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            int RESULT_LOAD_IMG = 1;
+
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_dashboard:
+                    Intent intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
+                    startActivity(intent);
                     mTextMessage.setText(R.string.title_dashboard);
-                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                    photoPickerIntent.setType("image/*");
-                    startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
@@ -113,18 +112,5 @@ public class MainActivity extends AppCompatActivity {
                     READ_WRITE_STORAGE);
         }
         return isGranted;
-    }
-
-    @Override
-    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
-        super.onActivityResult(reqCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            final Uri imageUri = data.getData();
-            //Intent intent = new Intent(getApplicationContext(), CreateMemeActivity.class);
-            Intent intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
-            intent.putExtra("imageUri", imageUri.toString());
-            startActivity(intent);
-        }
     }
 }
