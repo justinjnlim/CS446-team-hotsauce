@@ -19,6 +19,14 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".TemplateGalleryActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.TEMPLATEGALLERYACTIVITY" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".CreateTemplateActivity"
             android:label="CreateTemplateActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">

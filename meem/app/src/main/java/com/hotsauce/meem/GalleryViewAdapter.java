@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hotsauce.meem.db.Meme;
+import com.hotsauce.meem.db.MemeTemplate;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,7 @@ public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.
 
     private final LayoutInflater inflater;
     private List<Meme> memes = Collections.emptyList();
+    private List<MemeTemplate> templates = Collections.emptyList();
     private Context context;
 
     GalleryViewAdapter(Context context) {
@@ -46,22 +48,39 @@ public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.
     @Override
     public void onBindViewHolder(MemeViewHolder holder, int position) {
 
-        final Meme meme = this.memes.get(position);
-        holder.memeItemView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap memeBitmap = BitmapFactory.decodeFile(meme.getFilepath());
-        holder.memeItemView.setImageBitmap(memeBitmap);
+        if (memes.size() > 0) {
+            final Meme meme = this.memes.get(position);
+            holder.memeItemView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            Bitmap memeBitmap = BitmapFactory.decodeFile(meme.getFilepath());
+            holder.memeItemView.setImageBitmap(memeBitmap);
 
-        // create touch event
-        final String meme_id = meme.getId();
-        holder.memeItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, GalleryActionActivity.class);
-                intent.putExtra("meme", meme);
-                Log.d("current_meme", meme_id);
-                context.startActivity(intent);
-            }
-        });
+            // create touch event
+            final String meme_id = meme.getId();
+            holder.memeItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, GalleryActionActivity.class);
+                    intent.putExtra("meme", meme);
+                    Log.d("current_meme", meme_id);
+                    context.startActivity(intent);
+                }
+            });
+        } else if (templates.size() > 0) {
+            final MemeTemplate template = this.templates.get(position);
+            holder.memeItemView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            Bitmap memeBitmap = BitmapFactory.decodeFile(template.getFilepath());
+            holder.memeItemView.setImageBitmap(memeBitmap);
+
+            // create touch event
+            holder.memeItemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, CreateMemeActivity.class);
+                    intent.putExtra("template", template);
+                    context.startActivity(intent);
+                }
+            });
+        }
     }
 
     void setMemes(List<Meme> memes) {
@@ -69,10 +88,14 @@ public class GalleryViewAdapter extends RecyclerView.Adapter<GalleryViewAdapter.
         notifyDataSetChanged();
     }
 
+    void setTemplates(List<MemeTemplate> templates) {
+        this.templates = templates;
+        notifyDataSetChanged();
+    }
     //
     @Override
     public int getItemCount() {
-        return this.memes.size();
+        return Math.max(this.memes.size(), this.templates.size());
     }
 
 

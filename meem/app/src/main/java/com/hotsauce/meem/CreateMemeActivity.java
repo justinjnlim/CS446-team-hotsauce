@@ -59,7 +59,10 @@ public class CreateMemeActivity extends AppCompatActivity implements
         setContentView(R.layout.meme_editor);
 
         Intent intent = getIntent();
-        Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
+        Bundle bundle = intent.getExtras();
+        MemeTemplate chosenTemplate = (MemeTemplate) bundle.getSerializable("template");
+
+        Uri imageUri = Uri.fromFile(new File(chosenTemplate.getFilepath()));
         image = (ImageView)findViewById(R.id.image);
         image.setImageURI(imageUri);
         image.setOnTouchListener(this);
@@ -73,22 +76,7 @@ public class CreateMemeActivity extends AppCompatActivity implements
         ImageButton saveButton = (ImageButton)findViewById(R.id.saveButton);
         saveButton.setOnClickListener(this);
 
-        textboxes = new ArrayList<TextView>();
-
-        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
-        memeViewModel.getAllTemplates().observe(this, new Observer<List<MemeTemplate>>() {
-            @Override
-            public void onChanged(@Nullable final List<MemeTemplate> memeTemplates) {
-                // TODO: get memeTemplate from ID passed from Intent
-                // memeTemplate = memeTemplates.get(3);
-                // rectangles = memeTemplate.getRectangles();
-                rectangles = new ArrayList<Rect>();
-                rectangles.add(new Rect(200, 300, 800, 500));
-                rectangles.add(new Rect(500, 1500, 1200, 1700));
-
-                createTextBoxesFromRectangles(rectangles);
-            }
-        });
+        createTextBoxesFromRectangles(chosenTemplate.getRectangles());
     }
 
     public boolean onTouch (View v, MotionEvent ev) {

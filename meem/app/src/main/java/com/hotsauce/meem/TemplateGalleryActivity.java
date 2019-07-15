@@ -4,25 +4,22 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.hotsauce.meem.db.Meme;
+import com.hotsauce.meem.db.MemeTemplate;
 import com.hotsauce.meem.state.GreetingContext;
 
 import java.io.File;
@@ -31,10 +28,9 @@ import java.util.List;
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 
-public class MainActivity extends AppCompatActivity {
+public class TemplateGalleryActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
-    GreetingContext greetingContext;
 
     private MemeViewModel memeViewModel;
 
@@ -48,15 +44,14 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
+                    finish();
                     return true;
                 case R.id.navigation_dashboard:
-                    intent = new Intent(MainActivity.this, CreateTemplateActivity.class);
+                    intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
                     startActivity(intent);
                     mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_notifications:
-                    intent = new Intent(MainActivity.this, TemplateGalleryActivity.class);
-                    startActivity(intent);
                     mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
@@ -67,33 +62,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_template_gallery);
 
         if (requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             // Everything related to populating the gallery with memes
-            RecyclerView recyclerView = findViewById(R.id.Gallery);
+            RecyclerView recyclerView = findViewById(R.id.TemplateGallery);
             final GalleryViewAdapter adapter = new GalleryViewAdapter(this);
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
             recyclerView.setHasFixedSize(true);
 
-            greetingContext = new GreetingContext();
-            final TextView greetingView = findViewById(R.id.greeting);
-
             // Get a new or existing ViewModel
             memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
-            memeViewModel.getAllMemes().observe(this, new Observer<List<Meme>>() {
+            memeViewModel.getAllTemplates().observe(this, new Observer<List<MemeTemplate>>() {
                 @Override
-                public void onChanged(@Nullable final List<Meme> memes) {
-                    for (Meme meme : memes) {
-                        File f = new File(meme.getFilepath());
+                public void onChanged(@Nullable final List<MemeTemplate> templates) {
+                    for (MemeTemplate template : templates) {
+                        File f = new File(template.getFilepath());
                         if (!f.exists()) {
-                            memeViewModel.deleteMeme(meme);
+                            memeViewModel.deleteTemplate(template);
                             return;
                         }
                     }
-                    adapter.setMemes(memes);
-                    greetingView.setText(greetingContext.getGreetingsString(memes.size()));
+                    adapter.setTemplates(templates);
                 }
             });
         }
