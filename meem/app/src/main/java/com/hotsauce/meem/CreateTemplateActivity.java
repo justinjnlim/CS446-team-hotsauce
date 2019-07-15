@@ -75,7 +75,7 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         rectangles.add(new Rect(300, 300, 600, 600));
         rectangles.add(new Rect(500, 1000, 800, 1300));
 
-        createTextBox(300, 600, 300, 600);
+        createTextBox(300, 800, 300, 600);
 
         memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
     }
@@ -91,14 +91,7 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         tv.setLayoutParams(lp);
         tv.setText("");
 
-        // add TextView border
-        ShapeDrawable sd = new ShapeDrawable();
-        sd.setShape(new RectShape());
-        sd.getPaint().setColor(Color.RED);
-        sd.getPaint().setStrokeWidth(10f);
-        sd.getPaint().setStyle(Style.STROKE);
-        tv.setBackground(sd);
-
+        tv.setBackgroundColor(Color.parseColor("#55FF0000"));
         MultiTouchListener multiTouchListener = getMultiTouchListener();
 
         imageLayout.addView(tv);

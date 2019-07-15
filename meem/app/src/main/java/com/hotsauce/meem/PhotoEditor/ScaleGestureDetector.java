@@ -117,6 +117,8 @@ class ScaleGestureDetector {
     private float mCurrLen;
     private float mPrevLen;
     private float mScaleFactor;
+    private float mScaleFactorX;
+    private float mScaleFactorY;
     private float mCurrPressure;
     private float mPrevPressure;
     private long mTimeDelta;
@@ -442,7 +444,7 @@ class ScaleGestureDetector {
      * @return Distance between pointers in pixels.
      */
     public float getCurrentSpanX() {
-        return mCurrFingerDiffX;
+        return Math.abs(mCurrFingerDiffX);
     }
 
     /**
@@ -452,7 +454,7 @@ class ScaleGestureDetector {
      * @return Distance between pointers in pixels.
      */
     public float getCurrentSpanY() {
-        return mCurrFingerDiffY;
+        return Math.abs(mCurrFingerDiffY);
     }
 
     /**
@@ -488,6 +490,20 @@ class ScaleGestureDetector {
      */
     public float getPreviousSpanY() {
         return mPrevFingerDiffY;
+    }
+
+    public float getScaleFactorX() {
+        if (mScaleFactorX == -1) {
+            mScaleFactorX = getCurrentSpanX() / getPreviousSpanX();
+        }
+        return mScaleFactorX;
+    }
+
+    public float getScaleFactorY() {
+        if (mScaleFactorY == -1) {
+            mScaleFactorY = getCurrentSpanY() / getPreviousSpanY();
+        }
+        return mScaleFactorY;
     }
 
     /**

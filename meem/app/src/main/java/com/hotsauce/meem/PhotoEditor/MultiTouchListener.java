@@ -59,13 +59,18 @@ public class MultiTouchListener implements OnTouchListener {
         computeRenderOffset(view, info.pivotX, info.pivotY);
         adjustTranslation(view, info.deltaX, info.deltaY);
 
-        float scale = view.getScaleX() * info.deltaScale;
-        scale = Math.max(info.minimumScale, Math.min(info.maximumScale, scale));
-        view.setScaleX(scale);
-        view.setScaleY(scale);
+        if (info.spanX > info.spanY) {
+            float scale = view.getScaleX() * info.deltaScale;
+            scale = Math.max(info.minimumScale, scale);
+            view.setScaleX(scale);
+        } else {
+            float scale = view.getScaleY() * info.deltaScale;
+            scale = Math.max(info.minimumScale, scale);
+            view.setScaleY(scale);
+        }
 
-        float rotation = adjustAngle(view.getRotation() + info.deltaAngle);
-        view.setRotation(rotation);
+        //float rotation = adjustAngle(view.getRotation() + info.deltaAngle);
+        //view.setRotation(rotation);
     }
 
     private static void adjustTranslation(View view, float deltaX, float deltaY) {
@@ -83,8 +88,8 @@ public class MultiTouchListener implements OnTouchListener {
         float[] prevPoint = {0.0f, 0.0f};
         view.getMatrix().mapPoints(prevPoint);
 
-//        view.setPivotX(pivotX);
-//        view.setPivotY(pivotY);
+        view.setPivotX(pivotX);
+        view.setPivotY(pivotY);
 
         float[] currPoint = {0.0f, 0.0f};
         view.getMatrix().mapPoints(currPoint);
@@ -190,11 +195,15 @@ public class MultiTouchListener implements OnTouchListener {
         public boolean onScale(View view, ScaleGestureDetector detector) {
             TransformInfo info = new TransformInfo();
             info.deltaScale = isScaleEnabled ? detector.getScaleFactor() : 1.0f;
+            info.deltaScaleX = isScaleEnabled ? detector.getScaleFactorX() : 1.0f;
+            info.deltaScaleY = isScaleEnabled ? detector.getScaleFactorY() : 1.0f;
+            info.spanX = detector.getCurrentSpanX();
+            info.spanY = detector.getCurrentSpanY();
             info.deltaAngle = isRotateEnabled ? Vector2D.getAngle(mPrevSpanVector, detector.getCurrentSpanVector()) : 0.0f;
             info.deltaX = isTranslateEnabled ? detector.getFocusX() - mPivotX : 0.0f;
             info.deltaY = isTranslateEnabled ? detector.getFocusY() - mPivotY : 0.0f;
-//            info.pivotX = mPivotX;
-//            info.pivotY = mPivotY;
+            info.pivotX = mPivotX;
+            info.pivotY = mPivotY;
             info.minimumScale = minimumScale;
             info.maximumScale = maximumScale;
             move(view, info);
@@ -206,6 +215,10 @@ public class MultiTouchListener implements OnTouchListener {
         float deltaX;
         float deltaY;
         float deltaScale;
+        float deltaScaleX;
+        float deltaScaleY;
+        float spanX;
+        float spanY;
         float deltaAngle;
         float pivotX;
         float pivotY;
