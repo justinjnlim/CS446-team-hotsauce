@@ -3,7 +3,6 @@ package com.hotsauce.meem;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     for (Meme meme : memes) {
                         File f = new File(meme.getFilepath());
                         if (!f.exists()) {
-                            memeViewModel.delete(meme);
+                            memeViewModel.deleteMeme(meme);
                             return;
                         }
                     }

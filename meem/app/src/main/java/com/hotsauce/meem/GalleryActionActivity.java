@@ -62,7 +62,7 @@ public class GalleryActionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (new File(currentMeme.getFilepath()).delete()) {
-                    memeViewModel.delete(currentMeme);
+                    memeViewModel.deleteMeme(currentMeme);
                 }
                 finish();
             }

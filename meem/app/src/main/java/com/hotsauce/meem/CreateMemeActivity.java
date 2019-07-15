@@ -51,12 +51,12 @@ public class CreateMemeActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Remove title bar
+
+        // Strip title and notification bars
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_create_meme);
+        setContentView(R.layout.meme_editor);
 
         Intent intent = getIntent();
         Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
@@ -175,7 +175,7 @@ public class CreateMemeActivity extends AppCompatActivity implements
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
-            memeViewModel.insert(new Meme(memeId));
+            memeViewModel.insertMeme(new Meme(memeId));
         } catch (Exception e) {
             e.printStackTrace();
         }

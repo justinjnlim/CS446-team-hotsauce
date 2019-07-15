@@ -248,7 +248,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                     @Override
                     public void onSuccess(@NonNull String imagePath) {
 
-                        memeViewModel.insert(new Meme(memeId));
+                        memeViewModel.insertMeme(new Meme(memeId));
                         hideLoading();
                         showSnackbar("Image Saved Successfully");
                         finish();

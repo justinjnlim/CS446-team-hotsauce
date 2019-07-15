@@ -29,11 +29,11 @@ public class MemeViewModel extends AndroidViewModel {
         return allMemes;
     }
 
-    void insert(Meme meme) {
+    void insertMeme(Meme meme) {
         memeRepository.insert(meme);
     }
 
-    void delete(Meme meme) {
+    void deleteMeme(Meme meme) {
         memeRepository.delete(meme);
     }
 
@@ -41,7 +41,7 @@ public class MemeViewModel extends AndroidViewModel {
         return allTemplates;
     }
 
-    void insertTemplate(MemeTemplate memeTemplate) {
+    public void insertTemplate(MemeTemplate memeTemplate) {
         memeRepository.insertTemplate(memeTemplate);
     }
 

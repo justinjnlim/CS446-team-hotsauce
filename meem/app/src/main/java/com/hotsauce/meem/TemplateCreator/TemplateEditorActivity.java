@@ -1,4 +1,4 @@
-package com.hotsauce.meem;
+package com.hotsauce.meem.TemplateCreator;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -6,7 +6,6 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.annotation.NonNull;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -20,8 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+import com.hotsauce.meem.MemeViewModel;
 import com.hotsauce.meem.PhotoEditor.MultiTouchListener;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
+import com.hotsauce.meem.R;
 import com.hotsauce.meem.db.MemeTemplate;
 
 import java.io.BufferedInputStream;
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateTemplateActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+public class TemplateEditorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
 
     List<Rect> rectangles;
     Uri imageUri;
