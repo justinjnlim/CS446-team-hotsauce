@@ -36,11 +36,14 @@ import java.util.List;
 
 public class TemplateEditorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
 
-    List<Rect> rectangles;
-    Uri imageUri;
-    private MemeViewModel memeViewModel;
+    private ArrayList<Rect> rectangles;
+    private Uri imageUri;
     private RelativeLayout imageLayout;
     private ImageView image;
+    boolean isInTextBoxEditingMode = false;
+    private ImageButton addTextButton;
+    private TextView selectedTextView = null;
+    private ArrayList<TextView> textBoxes;
 
     int REQ_LOAD_IMG = 1;
 
@@ -48,19 +51,20 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Calls image selector
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, REQ_LOAD_IMG);
-
         // Strip title and notification bars
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.template_editor);
 
-        imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
+        Intent intent = getIntent();
+        final Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
         image = (ImageView)findViewById(R.id.image);
+        image.setImageURI(imageUri);
+        image.setOnTouchListener(this);
+
+        imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
+        addTextButton = (ImageButton)findViewById(R.id.addTextButton);
 
         // Set button listeners
         ImageButton closeButton = (ImageButton)findViewById(R.id.closeButton);
@@ -71,15 +75,10 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
         addTextButton.setOnClickListener(this);
 
         rectangles = new ArrayList<Rect>();
-        rectangles.add(new Rect(300, 300, 600, 600));
-        rectangles.add(new Rect(500, 1000, 800, 1300));
-
-        createTextBox(300, 800, 300, 600);
-
-        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+        textBoxes = new ArrayList<TextView>(); 
     }
 
-    public void createTextBox(int x1, int x2, int y1, int y2) {
+    public TextView createTextBox(int x1, int x2, int y1, int y2) {
         TextView tv = new TextView(this);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
                 Math.abs(x1-x2),
@@ -96,44 +95,9 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
         imageLayout.addView(tv);
 
         final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
-        Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
         lpt.setMargins(x1, y1, 0, 0);
         tv.setOnTouchListener(multiTouchListener);
-    }
-
-    public void saveTemplate() {
-        String memeTemplateId = Long.toString(System.currentTimeMillis());
-        saveTemplateImageFile(memeTemplateId);
-        memeViewModel.insertTemplate(new MemeTemplate(memeTemplateId, rectangles));
-    }
-
-    void saveTemplateImageFile(String memeTemplateId)
-    {
-        String sourceFilename = imageUri.getPath();
-        String destinationFilename = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                + File.separator + memeTemplateId + ".png";
-
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-
-        try {
-            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
-            bos = new BufferedOutputStream(new FileOutputStream(destinationFilename, false));
-            byte[] buf = new byte[1024];
-            bis.read(buf);
-            do {
-                bos.write(buf);
-            } while(bis.read(buf) != -1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bis != null) bis.close();
-                if (bos != null) bos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        return tv;
     }
 
     public boolean onTouch (View v, MotionEvent ev) {
@@ -152,26 +116,45 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
         return true;
     }
 
+    void setIsInTextBoxEditingMode(boolean newIsInTextBoxEditingMode) {
+        if (newIsInTextBoxEditingMode) {
+            addTextButton.setVisibility(4);
+        } else {
+            addTextButton.setVisibility(0);
+        }
+        isInTextBoxEditingMode = newIsInTextBoxEditingMode;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.closeButton:
-                onBackPressed();
+                if (isInTextBoxEditingMode) {
+                    // delete textbox
+                } else {
+                    onBackPressed();
+                }
                 break;
             case R.id.saveButton:
-                saveTemplate();
-                onBackPressed();
+                if (isInTextBoxEditingMode) {
+                    setIsInTextBoxEditingMode(false);
+                } else {
+                    for (TextView tv: textBoxes) {
+                        rectangles.add(new Rect(
+                                tv.getLeft(), tv.getRight(), tv.getTop(), tv.getBottom()
+                        ));
+                    }
+
+                    Intent data = new Intent();
+                    data.putParcelableArrayListExtra("rectangles", rectangles);
+                    setResult(RESULT_OK,data);
+                    finish();
+                }
                 break;
             case R.id.addTextButton:
-                // TODO
-                TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
-                textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
-                    @Override
-                    public void onDone(String inputText, int colorCode) {
-                        // TODO
-                        Log .i("CreateTemplateActivityLog", "inputText:" + inputText);
-                    }
-                });
+                setIsInTextBoxEditingMode(true);
+                selectedTextView = createTextBox(300, 800, 300, 600);
+                textBoxes.add(selectedTextView);
                 break;
         }
     }
@@ -180,22 +163,5 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
     public void onBackPressed() {
         // show save dialogue if user is in editing mode
         super.onBackPressed();
-    }
-
-    @Override
-    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
-        super.onActivityResult(reqCode, resultCode, data);
-
-        if (reqCode == REQ_LOAD_IMG) {
-            if (resultCode == RESULT_OK) {
-                final Uri imageUri = data.getData();
-
-                image = findViewById(R.id.image);
-                image.setImageURI(imageUri);
-                image.setOnTouchListener(this);
-            } else {
-                onBackPressed();
-            }
-        }
     }
 }

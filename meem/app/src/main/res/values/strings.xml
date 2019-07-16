@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">meem</string>
     <string name="title_home">Gallery</string>
-    <string name="title_dashboard">New Meem Template</string>
+    <string name="title_dashboard">New Template</string>
     <string name="title_notifications">Templates</string>
     <string name="label_brush">Brush</string>
     <string name="label_emoji">Emoji</string>

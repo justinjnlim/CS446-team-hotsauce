@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import com.hotsauce.meem.PhotoEditor.MultiTouchListener;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
+import com.hotsauce.meem.TemplateCreator.TemplateEditorActivity;
 import com.hotsauce.meem.db.MemeTemplate;
 
 import java.io.BufferedInputStream;
@@ -33,80 +34,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateTemplateActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
-
-    List<Rect> rectangles;
-    Uri imageUri;
-    private MemeViewModel memeViewModel;
-    private RelativeLayout imageLayout;
-    private ImageView image;
+public class CreateTemplateActivity extends AppCompatActivity {
 
     int REQ_LOAD_IMG = 1;
+    int REQ_TEMPLATE_EDITOR = 2;
+    Uri imageUri;
+    private MemeViewModel memeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
+
         // Calls image selector
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         startActivityForResult(photoPickerIntent, REQ_LOAD_IMG);
-
-        // Strip title and notification bars
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        setContentView(R.layout.template_editor);
-
-        imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
-        image = (ImageView)findViewById(R.id.image);
-
-        // Set button listeners
-        ImageButton closeButton = (ImageButton)findViewById(R.id.closeButton);
-        closeButton.setOnClickListener(this);
-        ImageButton saveButton = (ImageButton)findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(this);
-        ImageButton addTextButton = (ImageButton)findViewById(R.id.addTextButton);
-        addTextButton.setOnClickListener(this);
-
-        rectangles = new ArrayList<Rect>();
-        rectangles.add(new Rect(300, 300, 600, 600));
-        rectangles.add(new Rect(500, 1000, 800, 1300));
-
-        createTextBox(300, 800, 300, 600);
-
-        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
     }
 
-    public void createTextBox(int x1, int x2, int y1, int y2) {
-        TextView tv = new TextView(this);
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-                Math.abs(x1-x2),
-                Math.abs(y1-y2));
-
-        // size textView to fit width and height
-        tv.setAutoSizeTextTypeUniformWithConfiguration(1, 100, 1, TypedValue.COMPLEX_UNIT_DIP);
-        tv.setLayoutParams(lp);
-        tv.setText("");
-
-        tv.setBackgroundColor(Color.parseColor("#55FF0000"));
-        MultiTouchListener multiTouchListener = new MultiTouchListener(null, image, true);
-
-        imageLayout.addView(tv);
-
-        final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
-        Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
-        lpt.setMargins(x1, y1, 0, 0);
-        tv.setOnTouchListener(multiTouchListener);
+    @Override
+    public void onBackPressed() {
+        // show save dialogue if user is in editing mode
+        super.onBackPressed();
     }
 
-    public void saveTemplate() {
-        String memeTemplateId = Long.toString(System.currentTimeMillis());
-        saveTemplateImageFile(memeTemplateId);
-        memeViewModel.insertTemplate(new MemeTemplate(memeTemplateId, rectangles));
-    }
-
-    void saveTemplateImageFile(String memeTemplateId)
+    // save a copy of the template image file
+    void saveTemplateImageFile(String memeTemplateId, Uri imageUri)
     {
         String sourceFilename = imageUri.getPath();
         String destinationFilename = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -135,50 +89,10 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
         }
     }
 
-    public boolean onTouch (View v, MotionEvent ev) {
-        final int action = ev.getAction();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN :
-                // TODO
-                Log .i("CreateTemplateActivityLog", "ACTION_DOWN");
-                break;
-            case MotionEvent.ACTION_UP :
-                // TODO
-                Log .i("CreateTemplateActivityLog", "x:" + ev.getX());
-                Log .i("CreateTemplateActivityLog", "y:" + ev.getY());
-                break;
-        }
-        return true;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.closeButton:
-                onBackPressed();
-                break;
-            case R.id.saveButton:
-                saveTemplate();
-                onBackPressed();
-                break;
-            case R.id.addTextButton:
-                // TODO
-                TextEditorDialogFragment textEditorDialogFragment = TextEditorDialogFragment.show(this);
-                textEditorDialogFragment.setOnTextEditorListener(new TextEditorDialogFragment.TextEditor() {
-                    @Override
-                    public void onDone(String inputText, int colorCode) {
-                        // TODO
-                        Log .i("CreateTemplateActivityLog", "inputText:" + inputText);
-                    }
-                });
-                break;
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // show save dialogue if user is in editing mode
-        super.onBackPressed();
+    public void saveTemplate(List<Rect> rectangles, Uri imageUri) {
+        String memeTemplateId = Long.toString(System.currentTimeMillis());
+        saveTemplateImageFile(memeTemplateId, imageUri);
+        memeViewModel.insertTemplate(new MemeTemplate(memeTemplateId, rectangles));
     }
 
     @Override
@@ -187,14 +101,21 @@ public class CreateTemplateActivity extends AppCompatActivity implements View.On
 
         if (reqCode == REQ_LOAD_IMG) {
             if (resultCode == RESULT_OK) {
-                final Uri imageUri = data.getData();
+                imageUri = data.getData();
 
-                image = findViewById(R.id.image);
-                image.setImageURI(imageUri);
-                image.setOnTouchListener(this);
+                // call template editor activity
+                Intent intent = new Intent(getApplicationContext(), TemplateEditorActivity.class);
+                intent.putExtra("imageUri", imageUri.toString());
+                startActivityForResult(intent, REQ_TEMPLATE_EDITOR);
             } else {
                 onBackPressed();
             }
+        } else if (reqCode == REQ_TEMPLATE_EDITOR) {
+            if (resultCode == RESULT_OK) {
+                List<Rect> rectangles = data.getParcelableArrayListExtra("rectangles");
+                saveTemplate(rectangles, imageUri);
+            }
+            onBackPressed();
         }
     }
 }

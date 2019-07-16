@@ -29,7 +29,7 @@
         android:layout_alignParentRight="true"
         android:layout_margin="8dp"
         android:background="#4A000000"
-        android:src="@drawable/ic_save" />
+        android:src="@drawable/ic_check" />
 
     <ImageButton
         android:id="@+id/addTextButton"
