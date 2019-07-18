@@ -1,38 +1,27 @@
 package com.hotsauce.meem;
 
+import android.Manifest;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.annotation.NonNull;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
-import com.hotsauce.meem.PhotoEditor.MultiTouchListener;
-import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
 import com.hotsauce.meem.TemplateCreator.TemplateEditorActivity;
 import com.hotsauce.meem.db.MemeTemplate;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 public class CreateTemplateActivity extends AppCompatActivity {
 
@@ -62,7 +51,14 @@ public class CreateTemplateActivity extends AppCompatActivity {
     // save a copy of the template image file
     void saveTemplateImageFile(String memeTemplateId, Uri imageUri)
     {
-        String sourceFilename = imageUri.getPath();
+
+        if (!requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            return;
+        }
+        if (!requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            return;
+        }
+
         String destinationFilename = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                 + File.separator + memeTemplateId + ".png";
 
@@ -70,7 +66,8 @@ public class CreateTemplateActivity extends AppCompatActivity {
         BufferedOutputStream bos = null;
 
         try {
-            bis = new BufferedInputStream(new FileInputStream(sourceFilename));
+            FileInputStream fis = new FileInputStream(getContentResolver().openFileDescriptor(imageUri, "r").getFileDescriptor());
+            bis = new BufferedInputStream(fis);
             bos = new BufferedOutputStream(new FileOutputStream(destinationFilename, false));
             byte[] buf = new byte[1024];
             bis.read(buf);
@@ -117,5 +114,16 @@ public class CreateTemplateActivity extends AppCompatActivity {
             }
             onBackPressed();
         }
+    }
+
+    public boolean requestPermission(String permission) {
+        boolean isGranted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+        if (!isGranted) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{permission},
+                    READ_WRITE_STORAGE);
+        }
+        return isGranted;
     }
 }

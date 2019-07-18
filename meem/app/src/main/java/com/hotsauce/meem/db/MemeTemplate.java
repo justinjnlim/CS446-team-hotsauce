@@ -69,6 +69,6 @@ public class MemeTemplate implements Serializable {
     }
 
     public String getFilepath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + id + ".png";
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + id + ".png";
     }
 }
