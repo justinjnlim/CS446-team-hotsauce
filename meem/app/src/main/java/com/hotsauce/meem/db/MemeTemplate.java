@@ -1,11 +1,9 @@
 package com.hotsauce.meem.db;
 
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Environment;
-
+import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -39,6 +37,7 @@ public class MemeTemplate implements Serializable {
             Rect r = rectangles.get(i);
             // left top right bottom
             temp.append(String.format("%d,%d,%d,%d", r.left, r.top, r.right, r.bottom));
+            temp.append("#");
         }
         this.coordString = temp.toString();
     }
@@ -58,6 +57,10 @@ public class MemeTemplate implements Serializable {
         String[] rectStrings = coordString.split("#");
         for (String rectString : rectStrings) {
             String[] r = rectString.split(",");
+            Log.i("Lucy", r[0]);
+            Log.i("Lucy", r[1]);
+            Log.i("Lucy", r[2]);
+            Log.i("Lucy", r[3]);
             rectList.add(new Rect(
                     Integer.parseInt(r[0]),
                     Integer.parseInt(r[1]),
@@ -65,6 +68,8 @@ public class MemeTemplate implements Serializable {
                     Integer.parseInt(r[3])
             ));
         }
+        Log.i("Lucy", coordString);
+
         return rectList;
     }
 

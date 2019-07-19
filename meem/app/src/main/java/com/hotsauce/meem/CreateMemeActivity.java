@@ -1,10 +1,10 @@
 package com.hotsauce.meem;
 
-import android.graphics.Paint.Style;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -23,9 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import com.hotsauce.meem.PhotoEditor.TextEditorDialogFragment;
 import com.hotsauce.meem.db.Meme;
@@ -44,7 +42,6 @@ public class CreateMemeActivity extends AppCompatActivity implements
     private RelativeLayout mainLayout;
     private ImageView image;
     private MemeViewModel memeViewModel;
-    private MemeTemplate memeTemplate;
     private List<Rect> rectangles;
     private List<TextView> textboxes;
 
@@ -76,7 +73,12 @@ public class CreateMemeActivity extends AppCompatActivity implements
         ImageButton saveButton = (ImageButton)findViewById(R.id.saveButton);
         saveButton.setOnClickListener(this);
 
-        createTextBoxesFromRectangles(chosenTemplate.getRectangles());
+        textboxes = new ArrayList<TextView>();
+        rectangles = chosenTemplate.getRectangles();
+        createTextBoxesFromRectangles(rectangles);
+        imageLayout.invalidate();
+
+        memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
     }
 
     public boolean onTouch (View v, MotionEvent ev) {
@@ -121,10 +123,10 @@ public class CreateMemeActivity extends AppCompatActivity implements
     }
 
     public TextView createTextBox(String inputText, int colorCode, int x1, int x2, int y1, int y2) {
+        TextView tv = new TextView(this);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
                 Math.abs(x1-x2),
                 Math.abs(y1-y2));
-        TextView tv = new TextView(this);
 
         // size textView to fit width and height
         tv.setAutoSizeTextTypeUniformWithConfiguration(1, 100, 1, TypedValue.COMPLEX_UNIT_DIP);
@@ -143,8 +145,8 @@ public class CreateMemeActivity extends AppCompatActivity implements
         imageLayout.addView(tv);
 
         final ViewGroup.MarginLayoutParams lpt = (ViewGroup.MarginLayoutParams)tv.getLayoutParams();
-        Log .i("CreateTemplateActivityLog", "margins: " + x1 + "," + y1);
         lpt.setMargins(x1, y1, 0, 0);
+
         return tv;
     }
 

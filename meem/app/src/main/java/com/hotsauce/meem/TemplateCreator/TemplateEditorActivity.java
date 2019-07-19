@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateEditorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener {
+public class TemplateEditorActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ArrayList<Rect> rectangles;
     private Uri imageUri;
@@ -61,7 +61,6 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
         final Uri imageUri = Uri.parse(intent.getStringExtra("imageUri"));
         image = (ImageView)findViewById(R.id.image);
         image.setImageURI(imageUri);
-        image.setOnTouchListener(this);
 
         imageLayout = (RelativeLayout)findViewById(R.id.imageLayout);
         addTextButton = (ImageButton)findViewById(R.id.addTextButton);
@@ -100,22 +99,6 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
         return tv;
     }
 
-    public boolean onTouch (View v, MotionEvent ev) {
-        final int action = ev.getAction();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN :
-                // TODO
-                Log .i("CreateTemplateActivityLog", "ACTION_DOWN");
-                break;
-            case MotionEvent.ACTION_UP :
-                // TODO
-                Log .i("CreateTemplateActivityLog", "x:" + ev.getX());
-                Log .i("CreateTemplateActivityLog", "y:" + ev.getY());
-                break;
-        }
-        return true;
-    }
-
     void setIsInTextBoxEditingMode(boolean newIsInTextBoxEditingMode) {
         if (newIsInTextBoxEditingMode) {
             addTextButton.setVisibility(4);
@@ -140,9 +123,14 @@ public class TemplateEditorActivity extends AppCompatActivity implements View.On
                     setIsInTextBoxEditingMode(false);
                 } else {
                     for (TextView tv: textBoxes) {
-                        rectangles.add(new Rect(
-                                tv.getLeft(), tv.getRight(), tv.getTop(), tv.getBottom()
-                        ));
+                        int loc[] = new int[2];
+                        tv.getLocationInWindow(loc);
+
+                        int left = loc[0];
+                        int top = loc[1];
+                        int right = left + (int)(tv.getWidth() * tv.getScaleX());
+                        int bottom = top + (int)(tv.getHeight() * tv.getScaleY());
+                        rectangles.add(new Rect(left, top,  right, bottom));
                     }
 
                     Intent data = new Intent();
