@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +25,6 @@ import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 
 public class TemplateGalleryActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
 
     private MemeViewModel memeViewModel;
 
@@ -39,17 +37,14 @@ public class TemplateGalleryActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     finish();
                     overridePendingTransition(0, 0);
                     return true;
                 case R.id.navigation_dashboard:
                     intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
                     startActivity(intent);
-                    mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
             return false;
@@ -86,12 +81,9 @@ public class TemplateGalleryActivity extends AppCompatActivity {
             });
         }
 
-        // Sets the bottom text message
-        mTextMessage = findViewById(R.id.message);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.getMenu().getItem(2).setChecked(true);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
     }
 
     public boolean requestPermission(String permission) {

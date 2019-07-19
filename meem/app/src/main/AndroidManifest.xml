@@ -13,7 +13,7 @@
         <activity android:name=".GalleryActionActivity"></activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="Meems">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,7 +21,7 @@
         </activity>
         <activity
             android:name=".TemplateGalleryActivity"
-            android:label="@string/app_name">
+            android:label="Templates">
             <intent-filter>
                 <action android:name="android.intent.action.TEMPLATEGALLERYACTIVITY" />
                 <category android:name="android.intent.category.LAUNCHER" />

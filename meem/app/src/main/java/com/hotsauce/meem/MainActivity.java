@@ -45,18 +45,15 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_dashboard:
                     intent = new Intent(MainActivity.this, CreateTemplateActivity.class);
                     startActivity(intent);
-                    mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_notifications:
                     intent = new Intent(MainActivity.this, TemplateGalleryActivity.class);
                     intent.addFlags(65536); // disables animation
                     startActivityForResult(intent, GALLERY_ACTIVITY);
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
             return false;
@@ -97,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // Sets the bottom text message
-        mTextMessage = findViewById(R.id.message);
         navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
