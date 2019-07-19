@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +15,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.hotsauce.meem.db.Meme;
 import com.hotsauce.meem.db.MemeTemplate;
-import com.hotsauce.meem.state.GreetingContext;
 
 import java.io.File;
 import java.util.List;
@@ -45,6 +41,7 @@ public class TemplateGalleryActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
                     finish();
+                    overridePendingTransition(0, 0);
                     return true;
                 case R.id.navigation_dashboard:
                     intent = new Intent(getApplicationContext(), CreateTemplateActivity.class);
@@ -92,6 +89,7 @@ public class TemplateGalleryActivity extends AppCompatActivity {
         // Sets the bottom text message
         mTextMessage = findViewById(R.id.message);
         BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation.getMenu().getItem(2).setChecked(true);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
     }

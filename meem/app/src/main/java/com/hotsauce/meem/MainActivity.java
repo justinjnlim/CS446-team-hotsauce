@@ -3,25 +3,21 @@ package com.hotsauce.meem;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.MenuItem;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
-
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.hotsauce.meem.TemplateCreator.TemplateEditorActivity;
 import com.hotsauce.meem.db.Meme;
 import com.hotsauce.meem.state.GreetingContext;
 
@@ -34,9 +30,11 @@ import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
+    private BottomNavigationView navigation;
     GreetingContext greetingContext;
 
     private MemeViewModel memeViewModel;
+    private int GALLERY_ACTIVITY = 1;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -56,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_notifications:
                     intent = new Intent(MainActivity.this, TemplateGalleryActivity.class);
-                    startActivity(intent);
+                    intent.addFlags(65536); // disables animation
+                    startActivityForResult(intent, GALLERY_ACTIVITY);
                     mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
@@ -100,9 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Sets the bottom text message
         mTextMessage = findViewById(R.id.message);
-        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
     }
 
     public boolean requestPermission(String permission) {
@@ -114,5 +112,13 @@ public class MainActivity extends AppCompatActivity {
                     READ_WRITE_STORAGE);
         }
         return isGranted;
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        if (reqCode == GALLERY_ACTIVITY) {
+            navigation.getMenu().getItem(0).setChecked(true);
+        }
     }
 }

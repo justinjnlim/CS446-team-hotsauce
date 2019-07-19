@@ -179,7 +179,7 @@ public class CreateMemeActivity extends AppCompatActivity implements
         if (bgDrawable != null)
             bgDrawable.draw(c);
         else
-            c.drawColor(Color.TRANSPARENT);
+            c.drawColor(Color.WHITE);
         v.draw(c);
         return b;
     }
