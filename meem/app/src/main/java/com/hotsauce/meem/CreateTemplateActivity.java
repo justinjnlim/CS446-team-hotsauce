@@ -8,10 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+
 import com.hotsauce.meem.TemplateCreator.TemplateEditorActivity;
 import com.hotsauce.meem.db.MemeTemplate;
 import java.io.BufferedInputStream;
@@ -22,24 +24,54 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
+import java.io.ByteArrayOutputStream;
 
 public class CreateTemplateActivity extends AppCompatActivity {
 
     int REQ_LOAD_IMG = 1;
     int REQ_TEMPLATE_EDITOR = 2;
+    int REQ_TAKE_IMG = 3;
     Uri imageUri;
     private MemeViewModel memeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
 
-        // Calls image selector
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, REQ_LOAD_IMG);
+        launchImageSelector();
+    }
+
+    private void launchImageSelector() {
+        final String photoTitle = "Take Photo";
+        final String galleryTitle = "Choose from Gallery";
+        final String cancelTitle = "Cancel";
+        final CharSequence[] titles = { photoTitle, galleryTitle, cancelTitle};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setItems(titles, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                CharSequence title = titles[item];
+                if (title.equals(photoTitle)) {
+                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takePicture, REQ_TAKE_IMG);
+                } else if (title.equals("Choose from Gallery")) {
+                    Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(pickPhoto , REQ_LOAD_IMG);
+                } else if (title.equals("Cancel")) {
+                    dialog.dismiss();
+                    onBackPressed();
+                }
+            }
+        });
+
+        builder.show();
     }
 
     @Override
@@ -96,9 +128,16 @@ public class CreateTemplateActivity extends AppCompatActivity {
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        if (reqCode == REQ_LOAD_IMG) {
+        if (reqCode == REQ_LOAD_IMG || reqCode == REQ_TAKE_IMG) {
             if (resultCode == RESULT_OK) {
-                imageUri = data.getData();
+
+                if (reqCode == REQ_TAKE_IMG) {
+                    Bitmap photo = (Bitmap) data.getExtras().get("data");
+                    imageUri = getImageUri(photo);
+                    Log.d("myTag", "returned from photo" + imageUri.toString());
+                } else {
+                    imageUri = data.getData();
+                }
 
                 // call template editor activity
                 Intent intent = new Intent(getApplicationContext(), TemplateEditorActivity.class);
@@ -114,6 +153,13 @@ public class CreateTemplateActivity extends AppCompatActivity {
             }
             onBackPressed();
         }
+    }
+
+    public Uri getImageUri(Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     public boolean requestPermission(String permission) {
