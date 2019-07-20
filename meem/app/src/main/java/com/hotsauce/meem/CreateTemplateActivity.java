@@ -9,13 +9,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.hotsauce.meem.TemplateCreator.TemplateEditorActivity;
 import com.hotsauce.meem.db.MemeTemplate;
 import java.io.BufferedInputStream;
@@ -26,11 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import static com.hotsauce.meem.PhotoEditor.BaseActivity.READ_WRITE_STORAGE;
-
-import android.view.MenuItem;
-import android.widget.Button;
-import android.view.View;
-import android.content.Context;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
