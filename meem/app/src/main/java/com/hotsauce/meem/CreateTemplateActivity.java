@@ -43,10 +43,20 @@ public class CreateTemplateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         memeViewModel = ViewModelProviders.of(this).get(MemeViewModel.class);
 
+
         launchImageSelector();
+
+
     }
 
     private void launchImageSelector() {
+        if (!requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            return;
+        }
+        if (!requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            return;
+        }
+
         final String photoTitle = "Take Photo";
         final String galleryTitle = "Choose from Gallery";
         final String cancelTitle = "Cancel";
